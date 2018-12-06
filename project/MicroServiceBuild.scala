@@ -23,13 +23,13 @@ private object AppDependencies {
   import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val microserviceBootstrapVersion = "8.7.0"
+  private val microserviceBootstrapVersion = "9.0.0"
   private val domainVersion = "5.2.0"
-  private val hmrcTestVersion = "3.2.0"
+  private val hmrcTestVersion = "3.3.0"
   private val reactiveMongoVersion = "6.2.0"
   private val mockitoVersion = "2.13.0"
   private val scalatestPlusPlayVersion = "2.0.0"
-  private val playSchedulingVersion = "4.1.0"
+  private val playSchedulingVersion = "5.4.0"
   private val mongoLockVersion = "5.1.0"
   private val authClientVersion = "2.17.0-play-25"
 

@@ -26,7 +26,7 @@ import controllers.test._
 import jobs._
 import services._
 import services.admin.{AdminService, AdminServiceImpl}
-import uk.gov.hmrc.play.config.inject.{DefaultServicesConfig, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.scheduling.ScheduledJob
 
 class Module extends AbstractModule {
