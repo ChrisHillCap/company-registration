@@ -30,8 +30,8 @@ import scala.util.control.NoStackTrace
 
 class SubmissionAPIFailure extends NoStackTrace
 
-class IncorporationCheckAPIConnectorImpl @Inject()() extends IncorporationCheckAPIConnector with ServicesConfig {
-  override lazy val proxyUrl = baseUrl("company-registration-frontend")
+class IncorporationCheckAPIConnectorImpl @Inject()(servicesConfig: ServicesConfig) extends IncorporationCheckAPIConnector {
+  override lazy val proxyUrl = servicesConfig.baseUrl("company-registration-frontend")
   override lazy val http = WSHttp
 }
 

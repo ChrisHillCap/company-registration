@@ -16,12 +16,16 @@
 
 package auth
 
+import javax.inject.Inject
+import play.api.Configuration
 import play.api.libs.json.{JsString, Reads, Writes}
-import uk.gov.hmrc.crypto.{CryptoWithKeysFromConfig, CompositeSymmetricCrypto, Crypted, PlainText}
+import uk.gov.hmrc.crypto.{Crypted, CryptoWithKeysFromConfig, PlainText}
 
 
-trait Crypto {
-  def crypto: CompositeSymmetricCrypto
+trait CryptoCustom {
+  val config: Configuration
+  val crypto = new CryptoWithKeysFromConfig(baseConfigKey = "mongo-encryption", config.underlying)
+
 
   val rds: Reads[String] = Reads[String](js =>
     js.validate[String].map(encryptedUtr => {
@@ -39,6 +43,4 @@ trait Crypto {
   )
 }
 
-object Crypto extends Crypto {
-  override lazy val crypto = CryptoWithKeysFromConfig(baseConfigKey = "mongo-encryption")
-}
+class CryptoCustomImpl @Inject()(val config: Configuration) extends CryptoCustom

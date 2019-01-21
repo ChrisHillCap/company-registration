@@ -31,9 +31,9 @@ import scala.util.control.NoStackTrace
 
 class EmailErrorResponse(s: String) extends NoStackTrace
 
-class SendEmailConnectorImpl @Inject()() extends SendEmailConnector with ServicesConfig with HttpErrorFunctions  {
+class SendEmailConnectorImpl @Inject()(servicesConfig: ServicesConfig) extends SendEmailConnector with HttpErrorFunctions  {
   val http: CoreGet with CorePost with CorePut = WSHttp
-  val sendEmailURL = getConfString("email.sendEmailURL", throw new Exception("email.sendEmailURL not found"))
+  val sendEmailURL = servicesConfig.getConfString("email.sendEmailURL", throw new Exception("email.sendEmailURL not found"))
 }
 
 trait SendEmailConnector extends HttpErrorFunctions {

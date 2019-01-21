@@ -16,21 +16,14 @@
 
 package auth
 
-import javax.inject.Inject
-
 import config.WSHttp
+import javax.inject.Inject
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.CorePost
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.config.inject
 
-class AuthClientConnectorImpl @Inject()(config: inject.ServicesConfig) extends AuthClientConnector {
-  override val serviceUrl: String = config.baseUrl("auth")
-  override def http: CorePost = WSHttp
-}
-
-object AuthClientConnector extends AuthClientConnector with ServicesConfig {
-  override val serviceUrl: String = baseUrl("auth")
+class AuthClientConnectorImpl @Inject()(servicesConfig: ServicesConfig) extends AuthClientConnector {
+  override val serviceUrl: String = servicesConfig.baseUrl("auth")
   override def http: CorePost = WSHttp
 }
 

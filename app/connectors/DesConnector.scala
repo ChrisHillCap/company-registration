@@ -30,11 +30,11 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
-class DesConnectorImpl @Inject()(val metricsService: MetricsService) extends DesConnector with ServicesConfig {
+class DesConnectorImpl @Inject()(val metricsService: MetricsService, servicesConfig: ServicesConfig) extends DesConnector {
   lazy val auditConnector = MicroserviceAuditConnector
-  lazy val serviceURL = baseUrl("des-service")
-  lazy val urlHeaderEnvironment: String = getConfString("des-service.environment", throw new Exception("could not find config value for des-service.environment"))
-  lazy val urlHeaderAuthorization: String = s"Bearer ${getConfString("des-service.authorization-token",
+  lazy val serviceURL = servicesConfig.baseUrl("des-service")
+  lazy val urlHeaderEnvironment: String = servicesConfig.getConfString("des-service.environment", throw new Exception("could not find config value for des-service.environment"))
+  lazy val urlHeaderAuthorization: String = s"Bearer ${servicesConfig.getConfString("des-service.authorization-token",
     throw new Exception("could not find config value for des-service.authorization-token"))}"
 }
 

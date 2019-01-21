@@ -21,12 +21,13 @@ import java.util.Base64
 import com.typesafe.config.Config
 import javax.inject.{Inject, Named, Singleton}
 import net.ceedubs.ficus.Ficus._
-import play.api.{Application, Configuration, Logger, Play}
+import play.api.Mode.Mode
+import play.api._
 import repositories.{CorporationTaxRegistrationMongoRepository, Repositories}
 import services.admin.AdminServiceImpl
 import uk.gov.hmrc.play.auth.controllers.AuthParamsControllerConfig
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
-import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
+import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode, ServicesConfig}
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
 import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 import uk.gov.hmrc.play.scheduling.{RunningOfScheduledJobs, ScheduledJob}
@@ -40,10 +41,15 @@ object ControllerConfiguration extends ControllerConfig {
 object AuthParamsControllerConfiguration extends AuthParamsControllerConfig {
   lazy val controllerConfigs = ControllerConfiguration.controllerConfigs
 }
+class ServicesConfigImpl @Inject()(val runModeConfiguration: Configuration, environment: Environment) extends ServicesConfig {
+  override protected def mode: Mode = environment.mode
+}
 
 object MicroserviceAuditFilter extends AuditFilter with AppName with MicroserviceFilterSupport {
   override val auditConnector = MicroserviceAuditConnector
   override def controllerNeedsAuditing(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsAuditing
+
+  override protected def appNameConfiguration: Configuration = Play.current.configuration
 }
 
 object MicroserviceLoggingFilter extends LoggingFilter with MicroserviceFilterSupport {
@@ -82,6 +88,10 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode with Ru
 
     super.onStart(app)
   }
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait JobsList {

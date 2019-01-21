@@ -29,8 +29,8 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class BusinessRegistrationConnectorImpl @Inject()() extends BusinessRegistrationConnector with ServicesConfig {
-  lazy val businessRegUrl = baseUrl("business-registration")
+class BusinessRegistrationConnectorImpl @Inject()(servicesConfig: ServicesConfig) extends BusinessRegistrationConnector {
+  lazy val businessRegUrl = servicesConfig.baseUrl("business-registration")
   val http : CoreGet with CorePost with CorePatch = WSHttp
 }
 

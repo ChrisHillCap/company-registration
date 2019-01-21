@@ -17,8 +17,7 @@
 package config
 
 import javax.inject.Inject
-
-import uk.gov.hmrc.play.config.inject.ServicesConfig
+import uk.gov.hmrc.play.config.ServicesConfig
 
 class MicroserviceAppConfigImpl @Inject()(val config: ServicesConfig) extends MicroserviceAppConfig
 

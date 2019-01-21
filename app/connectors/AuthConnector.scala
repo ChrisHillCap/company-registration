@@ -28,8 +28,8 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
-class AuthConnectorImpl @Inject()() extends AuthConnector with ServicesConfig {
-  lazy val serviceUrl = baseUrl("auth")
+class AuthConnectorImpl @Inject()(servicesConfig: ServicesConfig) extends AuthConnector {
+  lazy val serviceUrl = servicesConfig.baseUrl("auth")
   val authorityUri = "auth/authority"
   val http: CoreGet with CorePost = WSHttp
 }

@@ -16,7 +16,7 @@
 
 package config
 
-import auth.{AuthClientConnector, AuthClientConnectorImpl}
+import auth.{AuthClientConnector, AuthClientConnectorImpl, CryptoCustom, CryptoCustomImpl}
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import connectors._
@@ -26,7 +26,7 @@ import controllers.test._
 import jobs._
 import services._
 import services.admin.{AdminService, AdminServiceImpl}
-import uk.gov.hmrc.play.config.inject.{DefaultServicesConfig, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.scheduling.ScheduledJob
 
 class Module extends AbstractModule {
@@ -47,7 +47,8 @@ class Module extends AbstractModule {
 
   private def bindConfig() = {
     bind(classOf[MicroserviceAppConfig]).to(classOf[MicroserviceAppConfigImpl])
-    bind(classOf[ServicesConfig]).to(classOf[DefaultServicesConfig])
+    bind(classOf[CryptoCustom]).to(classOf[CryptoCustomImpl])
+    bind(classOf[ServicesConfig]).to(classOf[ServicesConfigImpl])
   }
 
   private def bindControllers() = {
