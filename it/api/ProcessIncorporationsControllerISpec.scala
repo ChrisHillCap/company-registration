@@ -26,9 +26,8 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.{WS, WSResponse}
-import play.modules.reactivemongo.MongoDbConnection
 import reactivemongo.api.commands.WriteResult
-import repositories.CorporationTaxRegistrationMongoRepository
+import repositories.CorpTaxRegistrationRepo
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -69,8 +68,8 @@ class ProcessIncorporationsControllerISpec extends IntegrationSpecBase with Mong
     withFollowRedirects(false).
     withHeaders("Content-Type"->"application/json")
 
-  class Setup extends MongoDbConnection {
-    val ctRepository = new CorporationTaxRegistrationMongoRepository(db)
+  class Setup {
+    val ctRepository = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
     await(ctRepository.drop)
     await(ctRepository.ensureIndexes)
 

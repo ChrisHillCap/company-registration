@@ -16,24 +16,42 @@
 
 package repositories
 
+import auth.CryptoSCRS
+import itutil.IntegrationSpecBase
 import models.RegistrationStatus._
 import models._
+import models.validation.MongoValidation
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import play.api.libs.json.{JsObject, Json}
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsObject
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.{BSONDocument, BSONInteger, BSONString}
-import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class CTUTRMongoRepositoryISpec
-  extends UnitSpec with MongoSpecSupport with BeforeAndAfterEach with ScalaFutures with Eventually with WithFakeApplication {
+  extends IntegrationSpecBase {
+
+  val additionalConfiguration = Map(
+    "schedules.missing-incorporation-job.enabled" -> "false",
+    "schedules.metrics-job.enabled" -> "false",
+    "schedules.remove-stale-documents-job.enabled" -> "false"
+  )
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .configure(additionalConfiguration)
+    .build()
 
   class Setup {
-    val repository = new CorporationTaxRegistrationMongoRepository(mongo)
+    val rmc = app.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = app.injector.instanceOf[CryptoSCRS]
+    val format   = CorporationTaxRegistration.format(MongoValidation, crypto)
+    val oFormat  = CorporationTaxRegistration.oFormat(format)
+    lazy val repository = new CorporationTaxRegistrationMongoRepository(rmc.mongoConnector.db,crypto,format,oFormat)
     await(repository.drop)
     await(repository.ensureIndexes)
   }

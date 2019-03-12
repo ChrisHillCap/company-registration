@@ -25,7 +25,7 @@ import scala.concurrent.Future
 
 
 class EmailServiceImpl @Inject()(val repositories: Repositories) extends EmailService {
-  val ctRepository = repositories.cTRepository
+  lazy val ctRepository = repositories.cTRepository
 }
 
 trait EmailService {

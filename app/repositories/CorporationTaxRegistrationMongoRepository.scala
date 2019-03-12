@@ -16,7 +16,7 @@
 
 package repositories
 
-import auth.AuthorisationResource
+import auth.{AuthorisationResource, CryptoSCRS}
 import cats.data.OptionT
 import cats.implicits._
 import javax.inject.{Inject, Singleton}
@@ -31,26 +31,22 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.api.{Cursor, DB}
 import reactivemongo.bson.{BSONDocument, _}
 import reactivemongo.play.json.BSONFormats
+import reactivemongo.play.json.BSONFormats._
 import reactivemongo.play.json.ImplicitBSONHandlers._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
+import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
-@Singleton
-class CorpTaxRegistrationRepo @Inject()(mongo: ReactiveMongoComponent) {
-  Logger.info("Creating CorporationTaxRegistrationMongoRepository")
-  val repo = new CorporationTaxRegistrationMongoRepository(mongo.mongoConnector.db)
+class CorpTaxRegistrationRepo @Inject()(mongo: ReactiveMongoComponent, crypto: CryptoSCRS) {
+  implicit val format   = CorporationTaxRegistration.format(MongoValidation, crypto)
+  implicit val oFormat  = CorporationTaxRegistration.oFormat(format)
+ lazy val repo = new CorporationTaxRegistrationMongoRepository(mongo.mongoConnector.db, crypto,format, oFormat)
 }
 
-object CorporationTaxRegistrationMongo extends ReactiveMongoFormats {
-  implicit val format = CorporationTaxRegistration.format(MongoValidation)
-  implicit val oFormat = CorporationTaxRegistration.oFormat(format)
-}
-
-trait CorporationTaxRegistrationRepository extends Repository[CorporationTaxRegistration, BSONObjectID]{
+trait CorporationTaxRegistrationRepository {
   def createCorporationTaxRegistration(metadata: CorporationTaxRegistration): Future[CorporationTaxRegistration]
   def retrieveCorporationTaxRegistration(regID: String): Future[Option[CorporationTaxRegistration]]
   def getExistingRegistration(registrationID: String): Future[CorporationTaxRegistration]
@@ -95,16 +91,19 @@ trait CorporationTaxRegistrationRepository extends Repository[CorporationTaxRegi
 
 class MissingCTDocument(regId: String) extends NoStackTrace
 
-class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
+class CorporationTaxRegistrationMongoRepository(
+                                                 mongo: () => DB,
+                                                 crypto: CryptoSCRS,
+                                                 format: Format[CorporationTaxRegistration],
+                                                 oFormat: OFormat[CorporationTaxRegistration])
   extends ReactiveRepository[CorporationTaxRegistration, BSONObjectID]("corporation-tax-registration-information",
     mongo,
-    CorporationTaxRegistrationMongo.format,
+    format,
     ReactiveMongoFormats.objectIdFormats)
   with CorporationTaxRegistrationRepository
   with AuthorisationResource[String] {
 
-  val cTRMongo = CorporationTaxRegistrationMongo
-  implicit val format = cTRMongo.oFormat
+  implicit val formats = oFormat
   super.indexes
 
   override def indexes: Seq[Index] = Seq(
@@ -207,7 +206,7 @@ class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
 
   override def retrieveMultipleCorporationTaxRegistration(registrationID: String): Future[List[CorporationTaxRegistration]] = {
     val selector = registrationIDSelector(registrationID)
-    collection.find(selector).cursor[CorporationTaxRegistration]().collect[List]()
+    collection.find(selector).cursor[CorporationTaxRegistration]().collect[List](Int.MaxValue, Cursor.FailOnError())
   }
 
   override def updateCompanyDetails(registrationID: String, companyDetails: CompanyDetails): Future[Option[CompanyDetails]] = {
@@ -379,27 +378,25 @@ class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
   }
 
   override def getRegistrationStats(): Future[Map[String, Int]] = {
-    import collection.BatchCommands.AggregationFramework._
 
-    val matchQuery = Match(Json.obj())
-    val project = Project(Json.obj(
-      "status" -> 1,
-      "_id" -> 0
-    ))
-    val group = Group(JsString("$status"))("count" -> SumValue(1))
+    // needed to make it pick up the index
+    val matchQuery: collection.PipelineOperator = collection.BatchCommands.AggregationFramework.Match(Json.obj())
+    val project = collection.BatchCommands.AggregationFramework.Project(Json.obj(
+          "status" -> 1,
+          "_id" -> 0
+        ))
+    // calculate the regime counts
+    val group = collection.BatchCommands.AggregationFramework.Group(JsString("$status"))("count" -> collection.BatchCommands.AggregationFramework.SumValue(1))
 
-    val metrics = collection.aggregate(matchQuery, List(project, group)) map {
-      _.documents map {
-        d => {
-          val regime = (d \ "_id").as[String]
-          val count = (d \ "count").as[Int]
-          regime -> count
-        }
+    val query = collection.aggregateWith[JsObject]()(_ => (matchQuery, List(project, group)))
+    val fList =  query.collect(Int.MaxValue, Cursor.FailOnError[List[JsObject]]())
+    fList.map{ _.map {
+      statusDoc => {
+        val regime = (statusDoc \ "_id").as[String]
+        val count = (statusDoc \ "count").as[Int]
+        regime -> count
       }
-    }
-
-    metrics map {
-      _.toMap
+    }.toMap
     }
   }
 
@@ -417,6 +414,7 @@ class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
   }
 
   override def updateRegistrationToHeld(regId: String, confRefs: ConfirmationReferences): Future[Option[CorporationTaxRegistration]] = {
+
     val jsonobj = BSONFormats.readAsBSONValue(Json.obj(
       "status" -> RegistrationStatus.HELD,
       "confirmationReferences" -> Json.toJson(confRefs),
@@ -444,12 +442,12 @@ class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
       "status" -> RegistrationStatus.HELD,
       "heldTimestamp" -> BSONDocument("$lte" -> DateTime.now(DateTimeZone.UTC).minusWeeks(1).getMillis)
     )
-    collection.find(selector).cursor[CorporationTaxRegistration]().collect[List]()
+    collection.find(selector).cursor[CorporationTaxRegistration]().collect[List](Int.MaxValue, Cursor.FailOnError())
   }
 
   def retrieveLockedRegIDs() : Future[List[String]] = {
     val selector = BSONDocument("status" -> RegistrationStatus.LOCKED)
-    val res = collection.find(selector).cursor[CorporationTaxRegistration]().collect[List]()
+    val res = collection.find(selector).cursor[CorporationTaxRegistration]().collect[List](Int.MaxValue, Cursor.FailOnError())
     res.map{ docs => docs.map(_.registrationID) }
   }
 
@@ -473,7 +471,7 @@ class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
     val selector = BSONDocument("confirmationReferences.acknowledgement-reference" -> BSONString(ackRef))
     val modifier = BSONDocument("$set" -> BSONFormats.readAsBSONValue(Json.obj(
       "status" -> RegistrationStatus.ACKNOWLEDGED,
-      "acknowledgementReferences" -> Json.toJson(ackRefs)(AcknowledgementReferences.format(MongoValidation))
+      "acknowledgementReferences" -> Json.toJson(ackRefs)(AcknowledgementReferences.format(MongoValidation, crypto))
     )).get)
 
     collection.findAndUpdate(selector, modifier) map {
@@ -485,7 +483,8 @@ class CorporationTaxRegistrationMongoRepository(mongo: () => DB)
     val selector = registrationIDSelector(regId)
     val modifier = BSONDocument(
       "$set" -> BSONFormats.readAsBSONValue(
-        Json.obj("sessionIdentifiers" -> Json.toJson(SessionIds(sessionId, credId)))
+        Json.obj("sessionIdentifiers" -> Json.toJson(SessionIds(sessionId.format(crypto),
+          credId))(SessionIds.format(crypto)))
       ).get
     )
 

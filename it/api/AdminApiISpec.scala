@@ -26,14 +26,12 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import play.modules.reactivemongo.MongoDbConnection
 import reactivemongo.api.commands.WriteResult
-import repositories.{CorporationTaxRegistrationMongoRepository, SequenceMongoRepository}
-import uk.gov.hmrc.mongo.MongoSpecSupport
+import repositories.{CorpTaxRegistrationRepo, SequenceMongoRepo}
 
 import scala.concurrent.ExecutionContext
 
-class AdminApiISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub {
+class AdminApiISpec extends IntegrationSpecBase with LoginStub {
 
   val regime = "testRegime"
   val subscriber = "testSubcriber"
@@ -61,9 +59,9 @@ class AdminApiISpec extends IntegrationSpecBase with MongoSpecSupport with Login
   val ackRef = "BRCT00000000001"
   val strideUser = "stride-12345"
 
-  class Setup extends MongoDbConnection {
-    val corpTaxRepo = new CorporationTaxRegistrationMongoRepository(db)
-    val seqRepo = new SequenceMongoRepository(db)
+  class Setup {
+    val corpTaxRepo = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
+    val seqRepo = app.injector.instanceOf[SequenceMongoRepo].repo
 
     await(corpTaxRepo.drop)
     await(seqRepo.drop)

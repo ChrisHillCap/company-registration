@@ -16,17 +16,18 @@
 
 package connectors
 
+import config.MicroserviceAppConfig
 import javax.inject.Inject
-import config.{MicroserviceAppConfig, WSHttp}
 import play.api.Logger
-import play.api.http.Status.{ACCEPTED, NOT_FOUND, NO_CONTENT, OK}
+import play.api.http.Status.{ACCEPTED, NO_CONTENT, OK}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Request
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.ws.{WSDelete, WSGet, WSPost}
 import utils.{AlertLogging, PagerDutyKeys}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
@@ -34,10 +35,9 @@ class SubscriptionFailure(msg: String) extends NoStackTrace {
   override def getMessage: String = msg
 }
 
-class IncorporationInformationConnectorImpl @Inject()(config: MicroserviceAppConfig) extends IncorporationInformationConnector {
+class IncorporationInformationConnectorImpl @Inject()(config: MicroserviceAppConfig, val http: HttpClient) extends IncorporationInformationConnector {
   val iiUrl: String = config.incorpInfoUrl
   val companyRegUrl = config.compRegUrl
-  val http: WSGet with WSPost with WSDelete = WSHttp
   val regime: String = config.regime
   val subscriber: String = config.subscriber
 }
@@ -45,7 +45,7 @@ class IncorporationInformationConnectorImpl @Inject()(config: MicroserviceAppCon
 trait IncorporationInformationConnector extends AlertLogging {
 
   val iiUrl: String
-  val http: WSGet with WSPost with WSDelete
+  val http: HttpClient
   val companyRegUrl: String
   val regime: String
   val subscriber: String

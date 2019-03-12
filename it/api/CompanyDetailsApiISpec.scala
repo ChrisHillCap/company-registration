@@ -11,7 +11,7 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WS
 import play.modules.reactivemongo.MongoDbConnection
 import reactivemongo.api.commands.WriteResult
-import repositories.{CorporationTaxRegistrationMongoRepository, SequenceMongoRepository}
+import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, SequenceMongoRepo, SequenceMongoRepository}
 import uk.gov.hmrc.http.{HeaderNames => GovHeaderNames}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -83,9 +83,9 @@ class CompanyDetailsApiISpec extends IntegrationSpecBase with LoginStub {
     .withHeaders(HeaderNames.SET_COOKIE -> getSessionCookie())
     .withHeaders(GovHeaderNames.xSessionId -> SessionId)
 
-  class Setup extends MongoDbConnection {
-    val ctRepository = new CorporationTaxRegistrationMongoRepository(db)
-    val seqRepo = new SequenceMongoRepository(db)
+  class Setup {
+    val ctRepository = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
+    val seqRepo = app.injector.instanceOf[SequenceMongoRepo].repo
 
     await(ctRepository.drop)
     await(ctRepository.ensureIndexes)

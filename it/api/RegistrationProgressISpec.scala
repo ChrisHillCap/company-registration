@@ -21,10 +21,9 @@ import java.util.UUID
 import itutil.{IntegrationSpecBase, LoginStub, WiremockHelper}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WS
-import play.modules.reactivemongo.MongoDbConnection
-import repositories.{CorporationTaxRegistrationMongoRepository, CorporationTaxRegistrationRepository}
+import repositories.CorpTaxRegistrationRepo
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,8 +36,6 @@ class RegistrationProgressISpec extends IntegrationSpecBase with LoginStub {
   val additionalConfiguration = Map(
     "auditing.consumer.baseUri.host" -> s"$mockHost",
     "auditing.consumer.baseUri.port" -> s"$mockPort",
-    "Test.auditing.consumer.baseUri.host" -> s"$mockHost",
-    "Test.auditing.consumer.baseUri.port" -> s"$mockPort",
     "microservice.services.auth.host" -> s"$mockHost",
     "microservice.services.auth.port" -> s"$mockPort"
   )
@@ -51,8 +48,8 @@ class RegistrationProgressISpec extends IntegrationSpecBase with LoginStub {
     withFollowRedirects(false).
     withHeaders("Content-Type"->"application/json")
 
-  class Setup extends MongoDbConnection {
-    val repository = new CorporationTaxRegistrationMongoRepository(db)
+  class Setup {
+    val repository = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
     await(repository.drop)
     await(repository.ensureIndexes)
   }
