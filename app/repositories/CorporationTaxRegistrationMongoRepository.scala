@@ -40,10 +40,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
-class CorpTaxRegistrationRepo @Inject()(mongo: ReactiveMongoComponent, crypto: CryptoSCRS) {
-  implicit val format   = CorporationTaxRegistration.format(MongoValidation, crypto)
-  implicit val oFormat  = CorporationTaxRegistration.oFormat(format)
- lazy val repo = new CorporationTaxRegistrationMongoRepository(mongo.mongoConnector.db, crypto,format, oFormat)
+class CorpTaxRegistrationRepo @Inject()(mongo: ReactiveMongoComponent, crypto: CryptoSCRS,corpMongoRepo: CorporationTaxRegistrationMongoRepository) {
+  lazy val repo = corpMongoRepo
 }
 
 trait CorporationTaxRegistrationRepository {
@@ -91,19 +89,19 @@ trait CorporationTaxRegistrationRepository {
 
 class MissingCTDocument(regId: String) extends NoStackTrace
 
-class CorporationTaxRegistrationMongoRepository(
-                                                 mongo: () => DB,
-                                                 crypto: CryptoSCRS,
-                                                 format: Format[CorporationTaxRegistration],
-                                                 oFormat: OFormat[CorporationTaxRegistration])
-  extends ReactiveRepository[CorporationTaxRegistration, BSONObjectID]("corporation-tax-registration-information",
-    mongo,
-    format,
+class CorporationTaxRegistrationMongoRepository @Inject()(
+                                                 mongo: ReactiveMongoComponent,
+                                                 crypto: CryptoSCRS
+                                                 )
+  extends ReactiveRepository[CorporationTaxRegistration, BSONObjectID](
+    "corporation-tax-registration-information",
+    mongo.mongoConnector.db,
+    CorporationTaxRegistration.format(MongoValidation, crypto),
     ReactiveMongoFormats.objectIdFormats)
   with CorporationTaxRegistrationRepository
   with AuthorisationResource[String] {
 
-  implicit val formats = oFormat
+  implicit val formats = CorporationTaxRegistration.oFormat(CorporationTaxRegistration.format(MongoValidation, crypto))
   super.indexes
 
   override def indexes: Seq[Index] = Seq(

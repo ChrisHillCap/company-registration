@@ -54,9 +54,7 @@ class CorporationTaxRegistrationMongoRepositoryISpec
   class Setup {
     val rmc = app.injector.instanceOf[ReactiveMongoComponent]
     val crypto = app.injector.instanceOf[CryptoSCRS]
-    val format   = CorporationTaxRegistration.format(MongoValidation, crypto)
-    val oFormat  = CorporationTaxRegistration.oFormat(format)
-    lazy val repository = new CorporationTaxRegistrationMongoRepository(rmc.mongoConnector.db,crypto,format,oFormat)
+    val repository = new CorporationTaxRegistrationMongoRepository(rmc,crypto)
     await(repository.drop)
     await(repository.ensureIndexes)
 
@@ -76,9 +74,7 @@ class CorporationTaxRegistrationMongoRepositoryISpec
     val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
     val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
     val repository = new CorporationTaxRegistrationMongoRepository(
-      rmComp.mongoConnector.db,crypto,
-      CorporationTaxRegistration.format(APIValidation,crypto),
-      CorporationTaxRegistration.oFormat(CorporationTaxRegistration.format(APIValidation,crypto))){
+      rmComp,crypto){
       override def indexes = indexList
     }
     await(repository.drop)

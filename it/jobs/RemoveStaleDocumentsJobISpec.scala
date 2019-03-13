@@ -61,9 +61,7 @@ class RemoveStaleDocumentsJobISpec extends IntegrationSpecBase with LogCapturing
   class Setup {
       val rmc = app.injector.instanceOf[ReactiveMongoComponent]
       val crypto = app.injector.instanceOf[CryptoSCRS]
-     val format   = CorporationTaxRegistration.format(MongoValidation, crypto)
-     val oFormat  = CorporationTaxRegistration.oFormat(format)
-     val repository = new CorporationTaxRegistrationMongoRepository(rmc.mongoConnector.db,crypto,format,oFormat)
+     val repository = new CorporationTaxRegistrationMongoRepository(rmc,crypto)
     await(repository.drop)
     await(repository.count) shouldBe 0
 
