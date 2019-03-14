@@ -38,12 +38,6 @@ class AppStartupJobsSpec extends UnitSpec with MockitoSugar with LogCapturing
   val mockCTRepository: CorporationTaxRegistrationMongoRepository = mock[CorporationTaxRegistrationMongoRepository]
 
   val mockAdminService: AdminServiceImpl = mock[AdminServiceImpl]
-  val mockRepositories: Repositories = new Repositories(
-    mockCTRepository,
-    mock[SequenceMongoRepo],
-    mock[ThrottleMongoRepo],
-    mock[LockRepositoryProvider])
-
   val expectedLockedReg = List()
   val expectedRegStats  = Map.empty[String,Int]
 
@@ -70,9 +64,8 @@ class AppStartupJobsSpec extends UnitSpec with MockitoSugar with LogCapturing
       val appStartupJobs: AppStartupJobs = new AppStartupJobs {
         override def runEverythingOnStartUp: Future[Unit] = Future.successful(())
         override val config: Configuration = Configuration()
-        override val repositories: Repositories = mockRepositories
         override val service: AdminService = mockAdminService
-        override val ctRepo: () => CorporationTaxRegistrationMongoRepository = () => mockCTRepository
+        override val ctRepo:CorporationTaxRegistrationMongoRepository = mockCTRepository
       }
       appStartupJobs.getCTCompanyName(regId1)
 
@@ -137,9 +130,8 @@ class AppStartupJobsSpec extends UnitSpec with MockitoSugar with LogCapturing
       val appStartupJobs: AppStartupJobs = new AppStartupJobs {
         override val config: Configuration = mockConfig
 
-        override val repositories: Repositories = mockRepositories
         override val service: AdminService = mockAdminService
-        override val ctRepo: () => CorporationTaxRegistrationMongoRepository = () => mockCTRepository
+        override val ctRepo: CorporationTaxRegistrationMongoRepository = mockCTRepository
 
         override def runEverythingOnStartUp: Future[Unit] = Future.successful(())
       }

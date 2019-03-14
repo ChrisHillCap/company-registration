@@ -28,31 +28,30 @@ import scala.concurrent.Future
 
 class AppStartupJobsImpl @Inject()(val config: Configuration,
                                 val service: AdminService,
-                                val repositories: Repositories) extends AppStartupJobs {
+                                val ctRepo: CorporationTaxRegistrationMongoRepository) extends AppStartupJobs {
 
 }
   trait AppStartupJobs {
 
     val config: Configuration
-    val repositories: Repositories
     val service: AdminService
-    val ctRepo: () => CorporationTaxRegistrationMongoRepository = () => repositories.cTRepository
+    val ctRepo: CorporationTaxRegistrationMongoRepository
 
     def startupStats: Future[Unit] = {
-      ctRepo().getRegistrationStats() map {
+      ctRepo.getRegistrationStats() map {
         stats => Logger.info(s"[RegStats] $stats")
       }
     }
 
  def lockedRegIds: Future[Unit] = {
-   ctRepo().retrieveLockedRegIDs() map { regIds =>
+   ctRepo.retrieveLockedRegIDs() map { regIds =>
      val message = regIds.map(rid => s" RegId: $rid")
      Logger.info(s"RegIds with locked status:$message")
    }
  }
 
   def getCTCompanyName(rid: String) : Future[Unit] = {
-    ctRepo().retrieveMultipleCorporationTaxRegistration(rid) map {
+    ctRepo.retrieveMultipleCorporationTaxRegistration(rid) map {
       list => list foreach { ctDoc =>
         Logger.info(s"[CompanyName] " +
           s"status : ${ctDoc.status} - " +
@@ -75,7 +74,7 @@ class AppStartupJobsImpl @Inject()(val config: Configuration,
   }
 
   def fetchIndexes(): Future[Unit] = {
-    ctRepo().fetchIndexes().map { list =>
+    ctRepo.fetchIndexes().map { list =>
       Logger.info(s"[Indexes] There are ${list.size} indexes")
       list.foreach{ index =>
         Logger.info(s"[Indexes]\n " +
@@ -97,7 +96,7 @@ class AppStartupJobsImpl @Inject()(val config: Configuration,
   def fetchDocInfoByRegId(regIds: Seq[String]): Future[Seq[Unit]] = {
 
     Future.sequence(regIds.map{ regId =>
-      ctRepo().retrieveCorporationTaxRegistration(regId).map {
+      ctRepo.retrieveCorporationTaxRegistration(regId).map {
         case Some(doc) =>
           Logger.info(
             s"""
@@ -122,7 +121,7 @@ class AppStartupJobsImpl @Inject()(val config: Configuration,
   def fetchByAckRef(ackRefs: Seq[String]): Unit = {
 
     for (ackRef <- ackRefs) {
-      ctRepo().retrieveByAckRef(ackRef).map {
+      ctRepo.retrieveByAckRef(ackRef).map {
         case Some(doc) =>
           Logger.info(
             s"""
