@@ -62,8 +62,8 @@ class AdminApiISpec extends IntegrationSpecBase with LoginStub {
   val strideUser = "stride-12345"
 
   class Setup {
-    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
-    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val rmComp = app.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = app.injector.instanceOf[CryptoSCRS]
     val corpTaxRepo = new CorporationTaxRegistrationMongoRepository(
       rmComp,crypto)
     val seqRepo = app.injector.instanceOf[SequenceMongoRepo].repo

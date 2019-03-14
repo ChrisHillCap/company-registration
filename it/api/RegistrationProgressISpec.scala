@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WS
 import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository}
+import repositories.CorporationTaxRegistrationMongoRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -51,8 +51,8 @@ class RegistrationProgressISpec extends IntegrationSpecBase with LoginStub {
     withHeaders("Content-Type"->"application/json")
 
   class Setup {
-    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
-    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val rmComp = app.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = app.injector.instanceOf[CryptoSCRS]
     val repository = new CorporationTaxRegistrationMongoRepository(
       rmComp,crypto)
     await(repository.drop)

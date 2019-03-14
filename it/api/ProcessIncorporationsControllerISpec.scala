@@ -71,8 +71,8 @@ class ProcessIncorporationsControllerISpec extends IntegrationSpecBase with Mong
     withHeaders("Content-Type"->"application/json")
 
   class Setup {
-    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
-    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val rmComp = app.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = app.injector.instanceOf[CryptoSCRS]
     val ctRepository = new CorporationTaxRegistrationMongoRepository(
       rmComp,crypto)
     await(ctRepository.drop)

@@ -73,8 +73,8 @@ class SubmissionControllerISpec extends IntegrationSpecBase with LoginStub with 
     .withHeaders(GovHeaderNames.xSessionId -> SessionId)
 
   class Setup {
-    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
-    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val rmComp = app.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = app.injector.instanceOf[CryptoSCRS]
     val ctRepository = new CorporationTaxRegistrationMongoRepository(
       rmComp,crypto)
     val seqRepo = app.injector.instanceOf[SequenceMongoRepo].repo

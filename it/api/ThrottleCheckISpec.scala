@@ -58,8 +58,8 @@ class ThrottleCheckISpec extends IntegrationSpecBase with LoginStub {
     withHeaders("Content-Type"->"application/json")
 
   class Setup {
-    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
-    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val rmComp = app.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = app.injector.instanceOf[CryptoSCRS]
     val crRepo = new CorporationTaxRegistrationMongoRepository(
       rmComp,crypto)
     await(crRepo.drop)
