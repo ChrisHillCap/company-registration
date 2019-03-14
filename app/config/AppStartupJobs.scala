@@ -134,6 +134,7 @@ class AppStartupJobsImpl @Inject()(val config: Configuration,
     }
   }
     def runEverythingOnStartUp = {
+      Thread.sleep(1000)
       lazy val regid = config.getString("companyNameRegID").getOrElse("")
       getCTCompanyName(regid)
 
