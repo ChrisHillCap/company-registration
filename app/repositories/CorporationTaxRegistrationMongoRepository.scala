@@ -40,10 +40,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
-class CorpTaxRegistrationRepo @Inject()(mongo: ReactiveMongoComponent, crypto: CryptoSCRS,corpMongoRepo: CorporationTaxRegistrationMongoRepository) {
-  lazy val repo = corpMongoRepo
-}
-
 trait CorporationTaxRegistrationRepository {
   def createCorporationTaxRegistration(metadata: CorporationTaxRegistration): Future[CorporationTaxRegistration]
   def retrieveCorporationTaxRegistration(regID: String): Future[Option[CorporationTaxRegistration]]

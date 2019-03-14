@@ -29,7 +29,7 @@ import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
-import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, SequenceMongoRepo}
+import repositories.{CorporationTaxRegistrationMongoRepository, SequenceMongoRepo}
 
 import scala.concurrent.ExecutionContext
 

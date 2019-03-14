@@ -31,7 +31,7 @@ import org.joda.time.{DateTime, Duration}
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Request
-import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, Repositories}
+import repositories.{CorporationTaxRegistrationMongoRepository, Repositories}
 import services.FailedToDeleteSubmissionData
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.lock.LockKeeper
@@ -40,16 +40,13 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class AdminServiceImpl @Inject()(
-                                 corpTaxRepo: CorpTaxRegistrationRepo,
+class AdminServiceImpl @Inject()(val corpTaxRegRepo: CorporationTaxRegistrationMongoRepository,
                                  val brConnector: BusinessRegistrationConnector,
                                  val desConnector: DesConnector,
                                  val repositories: Repositories,
                                  val incorpInfoConnector: IncorporationInformationConnector, microserviceAppConfig: MicroserviceAppConfig,
                                  val auditConnector: AuditConnector)
                                  extends AdminService {
-
-  lazy val corpTaxRegRepo: CorporationTaxRegistrationMongoRepository = corpTaxRepo.repo
   lazy val staleAmount: Int = microserviceAppConfig.getInt("staleDocumentAmount")
   lazy val clearAfterXDays: Int = microserviceAppConfig.getInt("clearAfterXDays")
   lazy val ignoredDocs: Set[String] = new String(Base64.getDecoder.decode(microserviceAppConfig.getConfigString("skipStaleDocs")), "UTF-8").split(",").toSet

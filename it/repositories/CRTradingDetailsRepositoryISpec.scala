@@ -19,7 +19,6 @@ package repositories
 import auth.CryptoSCRS
 import itutil.IntegrationSpecBase
 import models._
-import models.validation.MongoValidation
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}

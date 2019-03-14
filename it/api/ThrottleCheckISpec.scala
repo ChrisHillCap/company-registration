@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsBoolean, JsObject, JsString, Json}
 import play.api.libs.ws.WS
 import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, ThrottleMongoRepo}
+import repositories.{CorporationTaxRegistrationMongoRepository, ThrottleMongoRepo}
 import uk.gov.hmrc.time.DateTimeUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global

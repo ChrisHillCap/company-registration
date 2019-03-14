@@ -22,7 +22,6 @@ import auth.CryptoSCRS
 import com.google.inject.name.Names
 import itutil.{IntegrationSpecBase, WiremockHelper}
 import models._
-import models.validation.MongoValidation
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{BindingKey, QualifierInstance}
