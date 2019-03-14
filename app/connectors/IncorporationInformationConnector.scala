@@ -36,10 +36,10 @@ class SubscriptionFailure(msg: String) extends NoStackTrace {
 }
 
 class IncorporationInformationConnectorImpl @Inject()(config: MicroserviceAppConfig, val http: HttpClient) extends IncorporationInformationConnector {
-  val iiUrl: String = config.incorpInfoUrl
-  val companyRegUrl = config.compRegUrl
-  val regime: String = config.regime
-  val subscriber: String = config.subscriber
+  lazy val iiUrl: String = config.incorpInfoUrl
+  lazy val companyRegUrl = config.compRegUrl
+  lazy val regime: String = config.regime
+  lazy val subscriber: String = config.subscriber
 }
 
 trait IncorporationInformationConnector extends AlertLogging {
