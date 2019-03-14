@@ -32,10 +32,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MetricsServiceImpl @Inject()(metricsInstance: Metrics,
                                    val microserviceAppConfig: MicroserviceAppConfig,
+                                   val ctRepository: CorporationTaxRegistrationMongoRepository,
                                    val repositories: Repositories) extends MetricsService {
 
   override val metrics: Metrics = metricsInstance
-  lazy val ctRepository: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
 
   override val ctutrConfirmationCounter: Counter = metrics.defaultRegistry.counter("ctutr-confirmation-counter")
 

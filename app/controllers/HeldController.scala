@@ -27,13 +27,9 @@ import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class HeldControllerImpl @Inject()(
-                                    val authConnector: AuthConnector,
-                                    val service: ProcessIncorporationService,
-                                    val repositories: Repositories
-      ) extends HeldController {
-  lazy val resource: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
-}
+class HeldControllerImpl @Inject()(val resource: CorporationTaxRegistrationMongoRepository,
+                                   val authConnector: AuthConnector,
+                                   val service: ProcessIncorporationService) extends HeldController
 
 trait HeldController extends BaseController with AuthorisedActions {
 

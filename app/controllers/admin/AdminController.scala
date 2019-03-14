@@ -24,7 +24,7 @@ import models.{ConfirmationReferences, HO6RegistrationInformation}
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc.{Action, _}
-import repositories.{CorporationTaxRegistrationMongoRepository, CorporationTaxRegistrationRepository, Repositories}
+import repositories.CorporationTaxRegistrationMongoRepository
 import services.admin.AdminService
 import services.{CorporationTaxRegistrationService, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,20 +35,15 @@ import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AdminControllerImpl @Inject()(
-                                     val adminService: AdminService,
-                                     val submissionService: SubmissionService,
-                                     val repositories: Repositories
-      ) extends AdminController {
-  lazy val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
-
-}
+class AdminControllerImpl @Inject()(val adminService: AdminService,
+                                    val submissionService: SubmissionService,
+                                    val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository) extends AdminController
 
 trait AdminController extends BaseController with FutureInstances with ApplicativeSyntax with FlatMapSyntax {
 
   val adminService: AdminService
   val submissionService: SubmissionService
-  val cTRegistrationRepository: CorporationTaxRegistrationRepository
+  val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository
 
 
   def fetchHO6RegistrationInformation(regId: String): Action[AnyContent] = Action.async {

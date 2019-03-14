@@ -35,9 +35,9 @@ import scala.concurrent.Future
 class TestEndpointControllerImpl @Inject()(
                                             val submissionService: SubmissionService,
                                             val bRConnector: BusinessRegistrationConnector,
+                                            val cTMongoRepository: CorporationTaxRegistrationMongoRepository,
                                             val repositories: Repositories) extends TestEndpointController {
   lazy val throttleMongoRepository = repositories.throttleRepository
-  lazy val cTMongoRepository = repositories.cTRepository
 }
 
 trait TestEndpointController extends BaseController {

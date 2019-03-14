@@ -31,9 +31,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class TradingDetailsControllerImpl @Inject()(val metricsService: MetricsService,
                                              val tradingDetailsService: TradingDetailsService,
                                              val authConnector: AuthConnector,
-                                             val repositories: Repositories) extends TradingDetailsController {
-  lazy val resource: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
-}
+                                             val resource: CorporationTaxRegistrationMongoRepository,
+                                             val repositories: Repositories) extends TradingDetailsController
 
 
 trait TradingDetailsController extends BaseController with AuthorisedActions {

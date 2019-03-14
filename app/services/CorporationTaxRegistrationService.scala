@@ -43,10 +43,9 @@ class CorporationTaxRegistrationServiceImpl @Inject()(
                                                        val microserviceAppConfig: MicroserviceAppConfig,
                                                        val incorpInfoConnector: IncorporationInformationConnector,
                                                        val repositories: Repositories,
+                                                       val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository,
                                                        val auditConnector: AuditConnector
                                                      ) extends CorporationTaxRegistrationService {
-
-  lazy val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
   lazy val sequenceRepository: SequenceMongoRepository = repositories.sequenceRepository
 
   lazy val lockoutTimeout = microserviceAppConfig.getInt("schedules.missing-incorporation-job.lockTimeout")
@@ -64,7 +63,7 @@ case object NoSessionIdentifiersInDocument extends FailedPartialForLockedTopup
 
 trait CorporationTaxRegistrationService extends ScheduledService[Either[String,LockResponse]] with DateHelper {
 
-  val cTRegistrationRepository: CorporationTaxRegistrationRepository
+  val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository
   val sequenceRepository: SequenceRepository
   val brConnector: BusinessRegistrationConnector
   val auditConnector: AuditConnector

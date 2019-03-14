@@ -19,11 +19,9 @@ package repositories
 import javax.inject.Inject
 import uk.gov.hmrc.lock.LockRepository
 
-class Repositories @Inject()(corpRepo: CorporationTaxRegistrationMongoRepository,
-                             seqMongoRepo: SequenceMongoRepo,
+class Repositories @Inject()(seqMongoRepo: SequenceMongoRepo,
                              throttleMongoRepo: ThrottleMongoRepo,
                              lockRepo: LockRepositoryProvider) {
-  lazy val cTRepository: CorporationTaxRegistrationMongoRepository = corpRepo
   lazy val sequenceRepository: SequenceMongoRepository = seqMongoRepo.repo
   lazy val throttleRepository: ThrottleMongoRepository = throttleMongoRepo.repo
   lazy val lockRepository: LockRepository = lockRepo.repo

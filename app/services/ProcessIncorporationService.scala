@@ -43,12 +43,11 @@ class ProcessIncorporationServiceImpl @Inject()(
                                                    val accountingService: AccountingDetailsService,
                                                    val brConnector: BusinessRegistrationConnector,
                                                    val sendEmailService: SendEmailService,
-                                                   val repositories: Repositories,
+                                                   val ctRepository: CorporationTaxRegistrationMongoRepository,
                                                    val auditConnector: AuditConnector,
                                                    val microserviceAppConfig: MicroserviceAppConfig
                                                  ) extends ProcessIncorporationService  {
 
-  lazy val ctRepository = repositories.cTRepository
   lazy val addressLine4FixRegID = microserviceAppConfig.getConfigString("address-line-4-fix.regId")
   lazy val amendedAddressLine4 = microserviceAppConfig.getConfigString("address-line-4-fix.address-line-4")
   lazy val blockageLoggingDay = microserviceAppConfig.getConfigString("check-submission-job.schedule.blockage-logging-day")
@@ -67,7 +66,7 @@ trait ProcessIncorporationService extends DateHelper with HttpErrorFunctions wit
 
   val desConnector: DesConnector
   val incorporationCheckAPIConnector: IncorporationCheckAPIConnector
-  val ctRepository: CorporationTaxRegistrationRepository
+  val ctRepository: CorporationTaxRegistrationMongoRepository
   val accountingService: AccountingDetailsService
   val brConnector: BusinessRegistrationConnector
   val auditConnector: AuditConnector

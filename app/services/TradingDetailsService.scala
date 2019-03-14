@@ -25,9 +25,7 @@ import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class TradingDetailsServiceImpl @Inject()(val repositories: Repositories) extends TradingDetailsService {
-  lazy val corporationTaxRegistrationRepository = repositories.cTRepository
-}
+class TradingDetailsServiceImpl @Inject()(val corporationTaxRegistrationRepository : CorporationTaxRegistrationMongoRepository) extends TradingDetailsService
 
 trait TradingDetailsService extends BaseController {
 

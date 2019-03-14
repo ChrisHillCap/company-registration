@@ -28,7 +28,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Request}
-import repositories.{CorporationTaxRegistrationMongoRepository, CorporationTaxRegistrationRepository, Repositories, SequenceRepository}
+import repositories.{CorporationTaxRegistrationMongoRepository, Repositories, SequenceRepository}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
@@ -36,12 +36,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SubmissionServiceImpl @Inject()(val repositories: Repositories,
+                                      val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository,
                                       val incorpInfoConnector: IncorporationInformationConnector,
                                       val desConnector: DesConnector,
                                       val brConnector: BusinessRegistrationConnector,
                                       val corpTaxRegService: CorporationTaxRegistrationService,
                                       val auditConnector: AuditConnector) extends SubmissionService {
-  lazy val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
   lazy val sequenceRepository: SequenceRepository = repositories.sequenceRepository
 
   def currentDateTime: DateTime = DateTime.now(DateTimeZone.UTC)
@@ -49,7 +49,7 @@ class SubmissionServiceImpl @Inject()(val repositories: Repositories,
 
 trait SubmissionService extends DateHelper {
 
-  val cTRegistrationRepository: CorporationTaxRegistrationRepository
+  val cTRegistrationRepository: CorporationTaxRegistrationMongoRepository
   val sequenceRepository: SequenceRepository
   val incorpInfoConnector: IncorporationInformationConnector
   val desConnector: DesConnector

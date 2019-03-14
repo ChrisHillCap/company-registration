@@ -34,10 +34,10 @@ import utils.{AlertLogging, AlertLoggingImpl}
 class Module extends AbstractModule {
 
   override def configure(): Unit = {
+    bindConfig()
     bindRepositories()
     bindServices()
     bindConnectors()
-    bindConfig()
     bindControllers()
     bindJobs()
   }

@@ -35,11 +35,9 @@ class UserAccessServiceImpl @Inject()(
         val throttleService: ThrottleService,
         val ctService: CorporationTaxRegistrationService,
         val brConnector: BusinessRegistrationConnector,
-        val repositories: Repositories,
+        val ctRepository: CorporationTaxRegistrationMongoRepository,
         val microserviceAppConfig: MicroserviceAppConfig
       ) extends UserAccessService {
-
-  lazy val ctRepository = repositories.cTRepository
   lazy val threshold = microserviceAppConfig.getConfInt("throttle-threshold", throw new Exception("Could not find Threshold in config"))
 }
 

@@ -27,9 +27,8 @@ import javax.inject.Inject
 
 import scala.concurrent.Future
 
-class AccountingDetailsServiceImpl @Inject()(val repositories: Repositories,
+class AccountingDetailsServiceImpl @Inject()(val corporationTaxRegistrationRepository: CorporationTaxRegistrationMongoRepository,
                                              val microserviceAppConfig: MicroserviceAppConfig) extends AccountingDetailsService {
-  lazy val corporationTaxRegistrationRepository: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
   lazy val doNotIntendToTradeConf: String = microserviceAppConfig.getConfString("doNotIndendToTradeDefaultDate", throw new RuntimeException("Unable to retrieve doNotIndendToTradeDefaultDate from config"))
   override val doNotIndendToTradeDefaultDate = new String(Base64.getDecoder.decode(doNotIntendToTradeConf.getBytes()), "UTF-8")
 }

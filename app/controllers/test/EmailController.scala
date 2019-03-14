@@ -30,9 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class EmailControllerImpl @Inject()(val emailService: EmailService,
                                     val authConnector: AuthConnector,
-                                    repositories: Repositories) extends EmailController {
-  lazy val resource: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
-}
+                                    val resource: CorporationTaxRegistrationMongoRepository) extends EmailController
 
 trait EmailController extends BaseController with AuthorisedActions {
 

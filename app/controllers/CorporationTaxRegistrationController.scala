@@ -37,10 +37,8 @@ class CorporationTaxRegistrationControllerImpl @Inject()(
                                                           val ctService: CorporationTaxRegistrationService,
                                                           val repositories: Repositories,
                                                           val alertLogging: AlertLogging,
-                                                          val cryptoSCRS: CryptoSCRS) extends CorporationTaxRegistrationController {
-
-  lazy val resource: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
-}
+                                                          val resource: CorporationTaxRegistrationMongoRepository,
+                                                          val cryptoSCRS: CryptoSCRS) extends CorporationTaxRegistrationController
 
 trait CorporationTaxRegistrationController extends BaseController with AuthorisedActions with Logging {
 

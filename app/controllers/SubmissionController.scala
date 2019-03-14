@@ -38,9 +38,8 @@ class SubmissionControllerImpl @Inject()(val metricsService: MetricsService,
                                          val submissionService: SubmissionService,
                                          val repositories: Repositories,
                                          val alertLogging: AlertLogging,
-                                         val cryptoSCRS: CryptoSCRS) extends SubmissionController {
-  lazy val resource: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
-}
+                                         val resource: CorporationTaxRegistrationMongoRepository,
+                                         val cryptoSCRS: CryptoSCRS) extends SubmissionController
 
 
 trait SubmissionController extends BaseController with AuthorisedActions with Logging {
