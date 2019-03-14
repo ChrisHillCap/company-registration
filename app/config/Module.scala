@@ -35,11 +35,10 @@ class Module extends AbstractModule {
 
   override def configure(): Unit = {
     bindRepositories()
-    bindControllers()
     bindServices()
     bindConnectors()
     bindConfig()
-
+    bindControllers()
     bindJobs()
   }
 
