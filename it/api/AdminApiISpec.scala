@@ -16,6 +16,7 @@
 
 package api
 
+import auth.CryptoSCRS
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil.WiremockHelper._
 import itutil.{IntegrationSpecBase, LoginStub}
@@ -26,8 +27,9 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
-import repositories.{CorpTaxRegistrationRepo, SequenceMongoRepo}
+import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, SequenceMongoRepo}
 
 import scala.concurrent.ExecutionContext
 
@@ -60,7 +62,10 @@ class AdminApiISpec extends IntegrationSpecBase with LoginStub {
   val strideUser = "stride-12345"
 
   class Setup {
-    val corpTaxRepo = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
+    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val corpTaxRepo = new CorporationTaxRegistrationMongoRepository(
+      rmComp,crypto)
     val seqRepo = app.injector.instanceOf[SequenceMongoRepo].repo
 
     await(corpTaxRepo.drop)

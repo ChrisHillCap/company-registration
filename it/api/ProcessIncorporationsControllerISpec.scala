@@ -16,6 +16,7 @@
 
 package api
 
+import auth.CryptoSCRS
 import com.github.tomakehurst.wiremock.client.WireMock.{stubFor, _}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil.{IntegrationSpecBase, LoginStub, MongoIntegrationSpec, WiremockHelper}
@@ -26,8 +27,9 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.{WS, WSResponse}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
-import repositories.CorpTaxRegistrationRepo
+import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -69,7 +71,10 @@ class ProcessIncorporationsControllerISpec extends IntegrationSpecBase with Mong
     withHeaders("Content-Type"->"application/json")
 
   class Setup {
-    val ctRepository = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
+    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val ctRepository = new CorporationTaxRegistrationMongoRepository(
+      rmComp,crypto)
     await(ctRepository.drop)
     await(ctRepository.ensureIndexes)
 

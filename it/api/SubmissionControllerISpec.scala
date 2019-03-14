@@ -26,9 +26,10 @@ import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
 import play.api.libs.ws.WS
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.play.json._
-import repositories.{CorpTaxRegistrationRepo, SequenceMongoRepo}
+import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, SequenceMongoRepo}
 import uk.gov.hmrc.http.{HeaderNames => GovHeaderNames}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -72,7 +73,10 @@ class SubmissionControllerISpec extends IntegrationSpecBase with LoginStub with 
     .withHeaders(GovHeaderNames.xSessionId -> SessionId)
 
   class Setup {
-    val ctRepository = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
+    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val ctRepository = new CorporationTaxRegistrationMongoRepository(
+      rmComp,crypto)
     val seqRepo = app.injector.instanceOf[SequenceMongoRepo].repo
 
     await(ctRepository.drop)

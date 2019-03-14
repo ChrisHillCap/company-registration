@@ -18,12 +18,14 @@ package api
 
 import java.util.UUID
 
+import auth.CryptoSCRS
 import itutil.{IntegrationSpecBase, LoginStub, WiremockHelper}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsBoolean, JsObject, JsString, Json}
 import play.api.libs.ws.WS
-import repositories.{CorpTaxRegistrationRepo, ThrottleMongoRepo}
+import play.modules.reactivemongo.ReactiveMongoComponent
+import repositories.{CorpTaxRegistrationRepo, CorporationTaxRegistrationMongoRepository, ThrottleMongoRepo}
 import uk.gov.hmrc.time.DateTimeUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,7 +58,10 @@ class ThrottleCheckISpec extends IntegrationSpecBase with LoginStub {
     withHeaders("Content-Type"->"application/json")
 
   class Setup {
-    val crRepo = app.injector.instanceOf[CorpTaxRegistrationRepo].repo
+    val rmComp = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val crypto = fakeApplication.injector.instanceOf[CryptoSCRS]
+    val crRepo = new CorporationTaxRegistrationMongoRepository(
+      rmComp,crypto)
     await(crRepo.drop)
     await(crRepo.ensureIndexes)
 
