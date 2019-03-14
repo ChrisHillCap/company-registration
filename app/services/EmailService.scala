@@ -24,7 +24,7 @@ import repositories.{CorporationTaxRegistrationMongoRepository, Repositories}
 import scala.concurrent.Future
 
 
-class EmailServiceImpl @Inject()(val repositories: Repositories) extends EmailService {
+class EmailServiceImpl @Inject()(repositories: Repositories) extends EmailService {
   lazy val ctRepository = repositories.cTRepository
 }
 

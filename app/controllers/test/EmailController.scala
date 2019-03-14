@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class EmailControllerImpl @Inject()(val emailService: EmailService,
                                     val authConnector: AuthConnector,
-                                    val repositories: Repositories) extends EmailController {
+                                    repositories: Repositories) extends EmailController {
   lazy val resource: CorporationTaxRegistrationMongoRepository = repositories.cTRepository
 }
 
